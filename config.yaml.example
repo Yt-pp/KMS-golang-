@@ -1,0 +1,15 @@
+kms:
+  addr: "127.0.0.1:50051"
+
+auth:
+  bearerToken: ""  # optional; normally you set KMS_BEARER_TOKEN via env after Login
+
+sourceDB:
+  driver: "sq lserver"
+  dsn: "sqlserver://user:password@localhost:1433?database=source_db&encrypt=disable"
+
+destDB:
+  driver: "sqlserver"
+  dsn: "sqlserver://user:password@localhost:1433?database=kms_db&encrypt=disable"
+
+

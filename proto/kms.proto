@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package kms;
+
+option go_package = "kms/proto;kmsproto";
+
+// KMS service provides encryption and decryption for sensitive data
+// such as credit card numbers and CVV values.
+service KMS {
+  // Encrypt a single piece of data.
+  rpc Encrypt (EncryptRequest) returns (EncryptResponse) {}
+
+  // Decrypt a single piece of data.
+  rpc Decrypt (DecryptRequest) returns (DecryptResponse) {}
+}
+
+// Auth service issues JWT tokens for clients that authenticate with
+// username/password. This is for demo purposes only; in production you would
+// typically integrate with an external IdP/OAuth2 provider.
+service Auth {
+  rpc Login (LoginRequest) returns (LoginResponse) {}
+}
+
+message EncryptRequest {
+  // Plaintext data to encrypt (e.g. card number, CVV).
+  bytes plaintext = 1;
+
+  // Optional logical key identifier if you plan to support multiple keys.
+  string key_id = 2;
+}
+
+message EncryptResponse {
+  // Ciphertext bytes (AES-GCM).
+  bytes ciphertext = 1;
+
+  // Nonce (IV) used during encryption. Must be stored with the ciphertext.
+  bytes nonce = 2;
+}
+
+message DecryptRequest {
+  bytes ciphertext = 1;
+  bytes nonce = 2;
+
+  // Optional logical key identifier.
+  string key_id = 3;
+}
+
+message DecryptResponse {
+  bytes plaintext = 1;
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+}
+
+
