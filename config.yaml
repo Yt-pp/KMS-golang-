@@ -1,0 +1,14 @@
+﻿kms:
+  addr: "127.0.0.1:50051"
+
+auth:
+  username: "demo"  
+  password: "demo123" 
+
+sourceDB:
+  driver: "mysql"
+  dsn: "root:1234@tcp(localhost:3306)/kms_test_source"
+
+destDB:
+  driver: "mysql"
+  dsn: "root:1234@tcp(localhost:3306)/kms_test_target"

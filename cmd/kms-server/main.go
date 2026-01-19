@@ -19,9 +19,24 @@ func main() {
 	jwtAud := os.Getenv("KMS_JWT_AUD")
 	jwtIss := os.Getenv("KMS_JWT_ISS")
 
-	mgr, err := kmslib.NewManagerFromFile(masterKeyPath)
-	if err != nil {
-		log.Fatalf("failed to load master key from %s: %v", masterKeyPath, err)
+	// Use NewManager which supports both file and HSM backends
+	var mgr kmslib.Manager
+	var err error
+	hsmType := os.Getenv("KMS_HSM_TYPE")
+	if hsmType != "" {
+		log.Printf("KMS server: Using HSM backend (type=%s)", hsmType)
+		mgr, err = kmslib.NewManager()
+		if err != nil {
+			log.Fatalf("failed to initialize HSM manager: %v", err)
+		}
+	} else {
+		log.Printf("KMS server: Using file-based key from %s", masterKeyPath)
+		var fileMgr kmslib.Manager
+		fileMgr, err = kmslib.NewManagerFromFile(masterKeyPath)
+		if err != nil {
+			log.Fatalf("failed to load master key from %s: %v", masterKeyPath, err)
+		}
+		mgr = fileMgr
 	}
 
 	var interceptors []grpc.UnaryServerInterceptor

@@ -5,11 +5,11 @@ auth:
   bearerToken: ""  # optional; normally you set KMS_BEARER_TOKEN via env after Login
 
 sourceDB:
-  driver: "sq lserver"
-  dsn: "sqlserver://user:password@localhost:1433?database=source_db&encrypt=disable"
+  driver: "mysql"
+  dsn: "user:password@tcp(localhost:3306)/abmb_dwh_pan"
 
 destDB:
-  driver: "sqlserver"
-  dsn: "sqlserver://user:password@localhost:1433?database=kms_db&encrypt=disable"
+  driver: "mysql"
+  dsn: "user:password@tcp(localhost:3306)/kms_db"
 
 

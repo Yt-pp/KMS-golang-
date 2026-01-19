@@ -16,10 +16,10 @@ import (
 // KMSServer implements the gRPC KMS service.
 type KMSServer struct {
 	kmsproto.UnimplementedKMSServer
-	manager *kmslib.Manager
+	manager kmslib.Manager
 }
 
-func NewKMSServer(mgr *kmslib.Manager) *KMSServer {
+func NewKMSServer(mgr kmslib.Manager) *KMSServer {
 	return &KMSServer{manager: mgr}
 }
 
@@ -47,7 +47,7 @@ func (s *KMSServer) Decrypt(ctx context.Context, req *kmsproto.DecryptRequest) (
 // Run starts the gRPC server on the given address, e.g. ":50051".
 // You can supply optional unary interceptors (e.g., auth).
 // jwtCfg is used by the Auth service to issue tokens.
-func Run(addr string, mgr *kmslib.Manager, jwtCfg auth.JWTConfig, interceptors ...grpc.UnaryServerInterceptor) error {
+func Run(addr string, mgr kmslib.Manager, jwtCfg auth.JWTConfig, interceptors ...grpc.UnaryServerInterceptor) error {
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err

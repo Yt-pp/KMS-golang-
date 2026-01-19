@@ -11,8 +11,9 @@ import (
 	"sync"
 )
 
-// Manager handles loading the master key and performing encryption / decryption.
-type Manager struct {
+// FileManager handles loading the master key from file and performing encryption / decryption.
+// This is the default implementation for file-based keys.
+type FileManager struct {
 	mu        sync.RWMutex
 	aead      cipher.AEAD
 	masterKey []byte
@@ -22,7 +23,7 @@ type Manager struct {
 //
 // The file should contain a hex-encoded 32-byte (256-bit) key, e.g.:
 //   7b6f3c... (64 hex chars)
-func NewManagerFromFile(path string) (*Manager, error) {
+func NewManagerFromFile(path string) (*FileManager, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -46,7 +47,7 @@ func NewManagerFromFile(path string) (*Manager, error) {
 		return nil, err
 	}
 
-	return &Manager{
+	return &FileManager{
 		aead:      aead,
 		masterKey: key,
 	}, nil
@@ -54,7 +55,7 @@ func NewManagerFromFile(path string) (*Manager, error) {
 
 // Encrypt encrypts the given plaintext using AES-GCM with a random nonce.
 // It returns the ciphertext and nonce.
-func (m *Manager) Encrypt(plaintext []byte) (ciphertext, nonce []byte, err error) {
+func (m *FileManager) Encrypt(plaintext []byte) (ciphertext, nonce []byte, err error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -72,7 +73,7 @@ func (m *Manager) Encrypt(plaintext []byte) (ciphertext, nonce []byte, err error
 }
 
 // Decrypt decrypts the given ciphertext using AES-GCM and the provided nonce.
-func (m *Manager) Decrypt(ciphertext, nonce []byte) ([]byte, error) {
+func (m *FileManager) Decrypt(ciphertext, nonce []byte) ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -85,6 +86,18 @@ func (m *Manager) Decrypt(ciphertext, nonce []byte) ([]byte, error) {
 		return nil, err
 	}
 	return plaintext, nil
+}
+
+// Close releases resources (no-op for file-based manager).
+func (m *FileManager) Close() error {
+	// Clear master key from memory
+	if m.masterKey != nil {
+		for i := range m.masterKey {
+			m.masterKey[i] = 0
+		}
+		m.masterKey = nil
+	}
+	return nil
 }
 
 // bytesTrimSpace is a minimal reimplementation of bytes.TrimSpace to avoid
